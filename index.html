@@ -243,9 +243,6 @@
         </form>
         <div class="weather" id="weatherBox"></div>
         <div class="loading" id="loading"></div>
-        <div style="margin:10px 0 0 0;">
-          <a href="#" class="main-link" id="backFromWeather">Назад</a>
-        </div>
       </div>
       <!-- RSS меню -->
       <div id="rssPage" style="display:none;">
@@ -294,6 +291,11 @@
         <a href="#" class="main-link" id="backFromRssList" style="margin-left:8px;margin-top:10px;margin-bottom:4px;display:inline-block;">Назад</a>
         <div class="rss-loading" id="rssLoading"></div>
         <div id="rssList"></div>
+        <!-- Футер с Options/Back ДЛЯ RSS-ЛЕНТЫ -->
+        <div class="footer">
+          <button type="button" class="footer-btn" id="optionsBtnRssList">Options</button>
+          <button type="button" class="footer-btn" id="backBtnRssList">Back</button>
+        </div>
       </div>
     </div>
     <!-- Options Popup -->
@@ -303,18 +305,33 @@
       <button class="resolution-btn selected" id="res240Btn">240x320</button>
       <div style="margin-top:6px"><button class="resolution-btn" id="closeOptionsBtn">Закрыть</button></div>
     </div>
-    <div class="footer">
+    <!-- Главный футер -->
+    <div class="footer" id="mainFooter">
       <button type="button" class="footer-btn" id="optionsBtn">Options</button>
       <button type="button" class="footer-btn" id="backBtn">Back</button>
     </div>
   </div>
   <script>
+    // Показывать/скрывать футеры в зависимости от страницы
+    function updateFooter(page) {
+      var mainFooter = document.getElementById('mainFooter');
+      var rssListFooter = document.querySelector('#rssListPage .footer');
+      if (page === 'rsslist') {
+        mainFooter.style.display = 'none';
+        rssListFooter.style.display = '';
+      } else {
+        mainFooter.style.display = '';
+        if (rssListFooter) rssListFooter.style.display = 'none';
+      }
+    }
+
     // Переключение страниц
     function showPage(page) {
       document.getElementById('mainMenu').style.display = (page === 'main') ? 'block' : 'none';
       document.getElementById('weatherPage').style.display = (page === 'weather') ? 'block' : 'none';
       document.getElementById('rssPage').style.display = (page === 'rss') ? 'block' : 'none';
       document.getElementById('rssListPage').style.display = (page === 'rsslist') ? 'block' : 'none';
+      updateFooter(page);
       // Back button logic
       var backBtn = document.getElementById('backBtn');
       if(page === 'main'){
@@ -327,23 +344,30 @@
     }
     document.getElementById('weatherMenuBtn').onclick = function(){ showPage('weather'); return false; };
     document.getElementById('rssMenuBtn').onclick = function(){ showPage('rss'); return false; };
-    document.getElementById('backFromWeather').onclick = function(){ showPage('main'); return false; };
     document.getElementById('backFromRss').onclick = function(){ showPage('main'); return false; };
     document.getElementById('backFromRssList').onclick = function(){ showPage('rss'); return false; };
 
-    // Реакция на Back в футере
+    // Реакция на Back в главном футере
     document.getElementById('backBtn').onclick = function() {
       if(document.getElementById('rssListPage').style.display === 'block') showPage('rss');
       else if(document.getElementById('rssPage').style.display === 'block' || document.getElementById('weatherPage').style.display === 'block') showPage('main');
     };
 
-    // Options popup logic
+    // Реакция на Back в футере RSS-ленты
+    document.getElementById('backBtnRssList').onclick = function() {
+      showPage('rss');
+    };
+    // Options popup logic (для обоих футеров)
     var optionsPopup = document.getElementById('optionsPopup');
     var optionsBtn = document.getElementById('optionsBtn');
+    var optionsBtnRssList = document.getElementById('optionsBtnRssList');
     function showOptions(show) {
       optionsPopup.style.display = show ? 'block' : 'none';
     }
     optionsBtn.onclick = function() {
+      showOptions(true);
+    };
+    optionsBtnRssList.onclick = function() {
       showOptions(true);
     };
     document.getElementById('closeOptionsBtn').onclick = function() {
@@ -379,7 +403,7 @@
 
     // Клик вне popup — закрытие
     document.addEventListener('mousedown', function(e) {
-      if(optionsPopup.style.display === 'block' && !optionsPopup.contains(e.target) && e.target !== optionsBtn) {
+      if(optionsPopup.style.display === 'block' && !optionsPopup.contains(e.target) && e.target !== optionsBtn && e.target !== optionsBtnRssList) {
         showOptions(false);
       }
     });
@@ -488,6 +512,7 @@
       }
       rssList.innerHTML = html || 'Нет новостей';
     }
+
     // Инициализация
     setResolution(240, 320);
     showPage('main');
