@@ -8,19 +8,11 @@
     :root {
       --screen-width: 240px;
       --screen-height: 320px;
-      --header-height: 32px;
-      --footer-height: 26px;
     }
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #eee;
+      margin: 0; padding: 0; background: #eee;
     }
-    body {}
     .app-window {
-      position: absolute;
-      left: 0; top: 0;
       width: var(--screen-width);
       height: var(--screen-height);
       min-width: var(--screen-width);
@@ -33,13 +25,13 @@
       font-family: Verdana, Arial, sans-serif;
       font-size: 13px;
       color: #000;
-      overflow: hidden;
-    }
-    .header {
+      overflow: auto;
+      margin: 0;
       position: absolute;
       left: 0; top: 0;
+    }
+    .header {
       width: 100%;
-      height: var(--header-height);
       background: #e0e6f8;
       border-bottom: 1px solid #b7b7b7;
       text-align: center;
@@ -50,27 +42,20 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 26px;
-      z-index: 3;
     }
     .header img {
       width: 22px;
       height: 22px;
       vertical-align: middle;
       margin-right: 4px;
-      margin-top: -4px;
     }
     .content-area {
-      position: absolute;
-      left: 0;
-      top: var(--header-height);
       width: 100%;
-      height: calc(var(--screen-height) - var(--footer-height) - var(--header-height));
-      overflow-y: auto;
-      overflow-x: hidden;
+      min-height: 140px;
+      max-height: 100%;
+      overflow: visible;
       box-sizing: border-box;
       background: #fff;
-      z-index: 2;
     }
     .main-menu, .rss-menu {
       margin: 8px 8px 0 8px;
@@ -154,11 +139,8 @@
       vertical-align: middle;
     }
     .footer {
-      position: absolute;
-      left: 0;
-      bottom: 0;
       width: 100%;
-      height: var(--footer-height);
+      height: 26px;
       font-size: 13px;
       background: #fff;
       border-top: 1px solid #d8c9a6;
@@ -169,6 +151,7 @@
       padding: 0 12px 3px 12px;
       box-sizing: border-box;
       z-index: 10;
+      margin-top: 5px;
     }
     .footer-btn {
       background: none;
@@ -258,8 +241,8 @@
           <input type="text" id="cityInput" class="input-box" placeholder="Введите город" required>
           <button type="submit" class="submit-btn">Показать</button>
         </form>
-        <div class="weather" id="weatherBox" style="display:none"></div>
-        <div class="loading" id="loading" style="display:none">Загрузка...</div>
+        <div class="weather" id="weatherBox"></div>
+        <div class="loading" id="loading"></div>
         <div style="margin:10px 0 0 0;">
           <a href="#" class="main-link" id="backFromWeather">Назад</a>
         </div>
@@ -309,7 +292,7 @@
       <!-- РСС список -->
       <div id="rssListPage" style="display:none;">
         <a href="#" class="main-link" id="backFromRssList" style="margin-left:8px;margin-top:10px;margin-bottom:4px;display:inline-block;">Назад</a>
-        <div class="rss-loading" id="rssLoading" style="display:none">Загрузка...</div>
+        <div class="rss-loading" id="rssLoading"></div>
         <div id="rssList"></div>
       </div>
     </div>
@@ -408,31 +391,40 @@
     const weatherBox = document.getElementById('weatherBox');
     const loading = document.getElementById('loading');
 
+    function clearWeather() {
+      weatherBox.innerHTML = '';
+      loading.innerHTML = '';
+    }
+
     form.addEventListener('submit', function(e) {
       e.preventDefault();
+      clearWeather();
       const city = input.value.trim();
       if (city) {
-        getWeather(city);
+        weatherBox.innerHTML = '';
+        loading.innerHTML = 'Загрузка...';
+        // Поддержка старых браузеров: XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+        var url = "https://api.openweathermap.org/data/2.5/weather?q=" + encodeURIComponent(city) + "&appid=" + apiKey + "&units=metric&lang=ru";
+        xhr.open("GET", url, true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState == 4) {
+            loading.innerHTML = '';
+            if (xhr.status == 200) {
+              try {
+                var data = JSON.parse(xhr.responseText);
+                showWeather(data);
+              } catch(e) {
+                weatherBox.innerHTML = "Ошибка обработки данных";
+              }
+            } else {
+              weatherBox.innerHTML = "Город не найден";
+            }
+          }
+        };
+        xhr.send(null);
       }
     });
-
-    function getWeather(city) {
-      weatherBox.style.display = 'none';
-      loading.style.display = 'block';
-      loading.textContent = 'Загрузка...';
-      fetch("https://api.openweathermap.org/data/2.5/weather?q=" + encodeURIComponent(city) + "&appid=" + apiKey + "&units=metric&lang=ru")
-        .then(function(response) {
-          if (!response.ok) throw new Error("Город не найден");
-          return response.json();
-        })
-        .then(function(data) {
-          loading.style.display = 'none';
-          showWeather(data);
-        })
-        .catch(function(err) {
-          loading.textContent = err.message;
-        });
-    }
 
     function showWeather(data) {
       weatherBox.innerHTML = 
@@ -442,7 +434,6 @@
         '<b>' + Math.round(data.main.temp) + '°C</b><br>' +
         'Ощущ: ' + Math.round(data.main.feels_like) + '°C<br>' +
         'Влаж: ' + data.main.humidity + '%';
-      weatherBox.style.display = 'block';
     }
 
     // RSS
@@ -463,28 +454,37 @@
 
     function loadRSS(rssUrl) {
       rssList.innerHTML = '';
-      rssLoading.style.display = 'block';
-      rssLoading.textContent = 'Загрузка...';
-      fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl))
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-          rssLoading.style.display = 'none';
-          displayRSS(data.contents);
-        })
-        .catch(function() {
-          rssLoading.textContent = 'Ошибка загрузки RSS';
-        });
+      rssLoading.innerHTML = 'Загрузка...';
+      // Поддержка старых браузеров: XMLHttpRequest
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl), true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+          rssLoading.innerHTML = '';
+          if (xhr.status == 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              displayRSS(data.contents);
+            } catch(e) {
+              rssList.innerHTML = 'Ошибка чтения RSS';
+            }
+          } else {
+            rssList.innerHTML = 'Ошибка загрузки RSS';
+          }
+        }
+      };
+      xhr.send(null);
     }
 
     function displayRSS(xmlText) {
-      var parser = new DOMParser();
+      var parser = new window.DOMParser();
       var xml = parser.parseFromString(xmlText, "text/xml");
       var items = xml.getElementsByTagName('item');
       var html = '';
       for (var i = 0; i < items.length && i < 10; i++) { // показываем только 10 новостей
         var title = items[i].getElementsByTagName('title')[0].textContent;
         var link = items[i].getElementsByTagName('link')[0].textContent;
-        html += '<a href="' + link + '" target="_blank">' + title + '</a>';
+        html += '<a href="' + link + '" target="_blank">' + title + '</a><br>';
       }
       rssList.innerHTML = html || 'Нет новостей';
     }
