@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" id="viewportMeta" content="width=240, height=320, initial-scale=1.0, user-scalable=no">
+  <title>XMedia-WAP</title>
+  <style>
+    :root {
+      --screen-width: 240px;
+      --screen-height: 320px;
+      --header-height: 32px;
+      --footer-height: 26px;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #eee;
+    }
+    body {}
+    .app-window {
+      position: absolute;
+      left: 0; top: 0;
+      width: var(--screen-width);
+      height: var(--screen-height);
+      min-width: var(--screen-width);
+      max-width: var(--screen-width);
+      min-height: var(--screen-height);
+      max-height: var(--screen-height);
+      border: 1px solid #d8c9a6;
+      background: #fff;
+      box-sizing: border-box;
+      font-family: Verdana, Arial, sans-serif;
+      font-size: 13px;
+      color: #000;
+      overflow: hidden;
+    }
+    .header {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%;
+      height: var(--header-height);
+      background: #e0e6f8;
+      border-bottom: 1px solid #b7b7b7;
+      text-align: center;
+      padding: 3px 0 2px 0;
+      font-weight: bold;
+      font-size: 15px;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 26px;
+      z-index: 3;
+    }
+    .header img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+      margin-right: 4px;
+      margin-top: -4px;
+    }
+    .content-area {
+      position: absolute;
+      left: 0;
+      top: var(--header-height);
+      width: 100%;
+      height: calc(var(--screen-height) - var(--footer-height) - var(--header-height));
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      background: #fff;
+      z-index: 2;
+    }
+    .main-menu, .rss-menu {
+      margin: 8px 8px 0 8px;
+      padding: 0;
+      list-style: none;
+      width: calc(var(--screen-width) - 16px);
+      box-sizing: border-box;
+    }
+    .main-menu li, .rss-menu li {
+      margin-bottom: 5px;
+      width: 100%;
+    }
+    .main-link, .rss-link {
+      display: block;
+      color: #0030b0;
+      background: #f9f9f9;
+      border: 1px solid #b7b7b7;
+      border-radius: 2px;
+      padding: 3px 5px;
+      text-decoration: underline;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+      word-break: break-all;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .main-link:active, .rss-link:active, .main-link.selected, .rss-link.selected {
+      background: #c6defb;
+      color: #000;
+    }
+    .form-label {
+      display: block;
+      margin: 5px 0 2px 0;
+      font-size: 12px;
+      color: #000;
+    }
+    .input-box {
+      width: 98%;
+      font-size: 13px;
+      border: 1px solid #bbb;
+      background: #f8f8f8;
+      border-radius: 1px;
+      padding: 2px 3px;
+      margin-bottom: 2px;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+    .submit-btn {
+      margin: 7px 0 0 0;
+      font-size: 13px;
+      border: 1px solid #b7b7b7;
+      background: #e0e6f8;
+      color: #0030b0;
+      border-radius: 2px;
+      padding: 2px 18px;
+      cursor: pointer;
+      max-width: 100%;
+      word-break: break-all;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+    .weather, #rssList {
+      border: 1px solid #b7b7b7;
+      background: #f9f9f9;
+      border-radius: 2px;
+      margin: 8px 8px 6px 8px;
+      padding: 4px 5px;
+      font-size: 13px;
+      text-align: left;
+      word-break: break-word;
+      max-width: calc(var(--screen-width) - 20px);
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+    .icon {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+    }
+    .footer {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: var(--footer-height);
+      font-size: 13px;
+      background: #fff;
+      border-top: 1px solid #d8c9a6;
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 12px 3px 12px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+    .footer-btn {
+      background: none;
+      border: none;
+      color: #0030b0;
+      font-size: 13px;
+      font-family: inherit;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      min-width: 44px;
+      height: 22px;
+      text-align: center;
+    }
+    .footer-btn:active {
+      background: #c6defb;
+      color: #000;
+    }
+    .rss-section-title {
+      margin: 8px 0 3px 0;
+      font-weight: bold;
+      font-size: 12px;
+      color: #0030b0;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .loading, .rss-loading {
+      color: #555;
+      text-align: center;
+      font-size: 12px;
+      word-break: break-word;
+      max-width: 100%;
+    }
+    .options-popup {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f9f9f9;
+      border: 1px solid #b7b7b7;
+      border-radius: 4px;
+      min-width: 120px;
+      z-index: 200;
+      padding: 8px 8px 8px 8px;
+      text-align: left;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+      font-size: 13px;
+      display: none;
+    }
+    .options-popup label { display: block; margin-bottom: 4px; }
+    .options-popup .resolution-btn {
+      margin: 2px 0;
+      width: 100%;
+      font-size: 13px;
+      background: #e0e6f8;
+      color: #0030b0;
+      border: 1px solid #b7b7b7;
+      border-radius: 2px;
+      cursor: pointer;
+      padding: 3px 0;
+      text-align: center;
+      display: block;
+    }
+    .options-popup .resolution-btn.selected {
+      background: #c6defb;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-window">
+    <div class="header">
+      <img src="https://i.ibb.co/yF5L2K8y/9efdcebc-1621-451f-a6de-11e696b2a84c-1.png" alt="logo">XMedia-WAP
+    </div>
+    <div class="content-area" id="contentArea">
+      <!-- Главное меню -->
+      <ul class="main-menu" id="mainMenu">
+        <li><a href="#" class="main-link" id="weatherMenuBtn">Погода</a></li>
+        <li><a href="#" class="main-link" id="rssMenuBtn">RSS-услуги</a></li>
+      </ul>
+      <!-- Погода страница -->
+      <div id="weatherPage" style="display:none;">
+        <form id="weatherForm" autocomplete="off">
+          <label class="form-label" for="cityInput">Город:</label>
+          <input type="text" id="cityInput" class="input-box" placeholder="Введите город" required>
+          <button type="submit" class="submit-btn">Показать</button>
+        </form>
+        <div class="weather" id="weatherBox" style="display:none"></div>
+        <div class="loading" id="loading" style="display:none">Загрузка...</div>
+        <div style="margin:10px 0 0 0;">
+          <a href="#" class="main-link" id="backFromWeather">Назад</a>
+        </div>
+      </div>
+      <!-- RSS меню -->
+      <div id="rssPage" style="display:none;">
+        <div class="rss-section-title">НОВОСТИ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/rss.xml">Новости</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/articles/rss.xml">Статьи</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/interview/rss.xml">Интервью</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/society/rss.xml">Общество</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/world/rss.xml">Мир</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/newsua/all/rss.xml">Все материалы</a></li>
+        </ul>
+        <div class="rss-section-title">БИЗНЕС</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/all/rss.xml">Все материалы (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/news/rss.xml">Новости (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/articles/rss.xml">Статьи (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/interview/rss.xml">Интервью (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/photo/rss.xml">Фотоматериалы (Бизнес)</a></li>
+        </ul>
+        <div class="rss-section-title">ФИНАНСЫ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/all.xml">Все материалы (Финансы)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/top.xml">Главные материалы (Финансы)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/bank.xml">Банки</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/insurance.xml">Страхование</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/crypto/rss.xml">Криптоэкономика</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/funds.xml">Фонды</a></li>
+        </ul>
+        <div class="rss-section-title">ТЕХНОЛОГИИ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/tech/all/rss.xml">Все материалы (Технологии)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/tech/top/rss.xml">Главные материалы (Технологии)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/tech/technology/rss.xml">Технологии</a></li>
+        </ul>
+        <div class="rss-section-title">БЛОГИ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/rss/blog.xml">Все материалы (Блоги)</a></li>
+        </ul>
+        <div style="margin:10px 0 0 0;">
+          <a href="#" class="main-link" id="backFromRss">Назад</a>
+        </div>
+      </div>
+      <!-- РСС список -->
+      <div id="rssListPage" style="display:none;">
+        <a href="#" class="main-link" id="backFromRssList" style="margin-left:8px;margin-top:10px;margin-bottom:4px;display:inline-block;">Назад</a>
+        <div class="rss-loading" id="rssLoading" style="display:none">Загрузка...</div>
+        <div id="rssList"></div>
+      </div>
+    </div>
+    <!-- Options Popup -->
+    <div class="options-popup" id="optionsPopup">
+      <label>Разрешение:</label>
+      <button class="resolution-btn" id="res128Btn">128x160</button>
+      <button class="resolution-btn selected" id="res240Btn">240x320</button>
+      <div style="margin-top:6px"><button class="resolution-btn" id="closeOptionsBtn">Закрыть</button></div>
+    </div>
+    <div class="footer">
+      <button type="button" class="footer-btn" id="optionsBtn">Options</button>
+      <button type="button" class="footer-btn" id="backBtn">Back</button>
+    </div>
+  </div>
+  <script>
+    // Переключение страниц
+    function showPage(page) {
+      document.getElementById('mainMenu').style.display = (page === 'main') ? 'block' : 'none';
+      document.getElementById('weatherPage').style.display = (page === 'weather') ? 'block' : 'none';
+      document.getElementById('rssPage').style.display = (page === 'rss') ? 'block' : 'none';
+      document.getElementById('rssListPage').style.display = (page === 'rsslist') ? 'block' : 'none';
+      // Back button logic
+      var backBtn = document.getElementById('backBtn');
+      if(page === 'main'){
+        backBtn.disabled = true;
+        backBtn.style.opacity = ".4";
+      } else {
+        backBtn.disabled = false;
+        backBtn.style.opacity = "1";
+      }
+    }
+    document.getElementById('weatherMenuBtn').onclick = function(){ showPage('weather'); return false; };
+    document.getElementById('rssMenuBtn').onclick = function(){ showPage('rss'); return false; };
+    document.getElementById('backFromWeather').onclick = function(){ showPage('main'); return false; };
+    document.getElementById('backFromRss').onclick = function(){ showPage('main'); return false; };
+    document.getElementById('backFromRssList').onclick = function(){ showPage('rss'); return false; };
+
+    // Реакция на Back в футере
+    document.getElementById('backBtn').onclick = function() {
+      if(document.getElementById('rssListPage').style.display === 'block') showPage('rss');
+      else if(document.getElementById('rssPage').style.display === 'block' || document.getElementById('weatherPage').style.display === 'block') showPage('main');
+    };
+
+    // Options popup logic
+    var optionsPopup = document.getElementById('optionsPopup');
+    var optionsBtn = document.getElementById('optionsBtn');
+    function showOptions(show) {
+      optionsPopup.style.display = show ? 'block' : 'none';
+    }
+    optionsBtn.onclick = function() {
+      showOptions(true);
+    };
+    document.getElementById('closeOptionsBtn').onclick = function() {
+      showOptions(false);
+    };
+
+    // Resolution switching
+    function setResolution(width, height) {
+      document.documentElement.style.setProperty('--screen-width', width + 'px');
+      document.documentElement.style.setProperty('--screen-height', height + 'px');
+      document.querySelector('.app-window').style.width = width + 'px';
+      document.querySelector('.app-window').style.height = height + 'px';
+      // Меняем meta viewport
+      document.getElementById('viewportMeta').setAttribute('content', 'width=' + width + ', height=' + height + ', initial-scale=1.0, user-scalable=no');
+      if(width === 128) {
+        document.getElementById('res128Btn').classList.add('selected');
+        document.getElementById('res240Btn').classList.remove('selected');
+      } else {
+        document.getElementById('res240Btn').classList.add('selected');
+        document.getElementById('res128Btn').classList.remove('selected');
+      }
+    }
+    document.getElementById('res128Btn').onclick = function() {
+      setResolution(128, 160);
+      showOptions(false);
+      return false;
+    };
+    document.getElementById('res240Btn').onclick = function() {
+      setResolution(240, 320);
+      showOptions(false);
+      return false;
+    };
+
+    // Клик вне popup — закрытие
+    document.addEventListener('mousedown', function(e) {
+      if(optionsPopup.style.display === 'block' && !optionsPopup.contains(e.target) && e.target !== optionsBtn) {
+        showOptions(false);
+      }
+    });
+
+    // Погода
+    const apiKey = "495285e7f470af7c1638cae253bc4d27";
+    const form = document.getElementById('weatherForm');
+    const input = document.getElementById('cityInput');
+    const weatherBox = document.getElementById('weatherBox');
+    const loading = document.getElementById('loading');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const city = input.value.trim();
+      if (city) {
+        getWeather(city);
+      }
+    });
+
+    function getWeather(city) {
+      weatherBox.style.display = 'none';
+      loading.style.display = 'block';
+      loading.textContent = 'Загрузка...';
+      fetch("https://api.openweathermap.org/data/2.5/weather?q=" + encodeURIComponent(city) + "&appid=" + apiKey + "&units=metric&lang=ru")
+        .then(function(response) {
+          if (!response.ok) throw new Error("Город не найден");
+          return response.json();
+        })
+        .then(function(data) {
+          loading.style.display = 'none';
+          showWeather(data);
+        })
+        .catch(function(err) {
+          loading.textContent = err.message;
+        });
+    }
+
+    function showWeather(data) {
+      weatherBox.innerHTML = 
+        '<strong>' + data.name + ', ' + data.sys.country + '</strong><br>' +
+        '<img class="icon" src="https://openweathermap.org/img/wn/' + data.weather[0].icon + '.png" alt="Погода"> ' +
+        data.weather[0].description + '<br>' +
+        '<b>' + Math.round(data.main.temp) + '°C</b><br>' +
+        'Ощущ: ' + Math.round(data.main.feels_like) + '°C<br>' +
+        'Влаж: ' + data.main.humidity + '%';
+      weatherBox.style.display = 'block';
+    }
+
+    // RSS
+    var rssLinks = document.querySelectorAll('.rss-link');
+    var rssList = document.getElementById('rssList');
+    var rssLoading = document.getElementById('rssLoading');
+    var lastRssLink = null;
+    rssLinks.forEach(function(link){
+      link.onclick = function(){
+        if (lastRssLink) lastRssLink.classList.remove('selected');
+        link.classList.add('selected');
+        lastRssLink = link;
+        showPage('rsslist');
+        loadRSS(link.getAttribute('data-url'));
+        return false;
+      };
+    });
+
+    function loadRSS(rssUrl) {
+      rssList.innerHTML = '';
+      rssLoading.style.display = 'block';
+      rssLoading.textContent = 'Загрузка...';
+      fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl))
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          rssLoading.style.display = 'none';
+          displayRSS(data.contents);
+        })
+        .catch(function() {
+          rssLoading.textContent = 'Ошибка загрузки RSS';
+        });
+    }
+
+    function displayRSS(xmlText) {
+      var parser = new DOMParser();
+      var xml = parser.parseFromString(xmlText, "text/xml");
+      var items = xml.getElementsByTagName('item');
+      var html = '';
+      for (var i = 0; i < items.length && i < 10; i++) { // показываем только 10 новостей
+        var title = items[i].getElementsByTagName('title')[0].textContent;
+        var link = items[i].getElementsByTagName('link')[0].textContent;
+        html += '<a href="' + link + '" target="_blank">' + title + '</a>';
+      }
+      rssList.innerHTML = html || 'Нет новостей';
+    }
+    // Инициализация
+    setResolution(240, 320);
+    showPage('main');
+  </script>
+</body>
+</html>
