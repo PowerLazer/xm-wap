@@ -120,7 +120,7 @@
       white-space: normal;
       overflow-wrap: break-word;
     }
-    .weather, #rssList, #photoResult {
+    .weather, #rssList, #photoResult, #codesContent {
       border: 1px solid #b7b7b7;
       background: #f9f9f9;
       border-radius: 2px;
@@ -215,12 +215,44 @@
       margin-top: 2px;
       word-break: break-all;
     }
+    /* Коды */
+    #codesContent {
+      background: #f9f9f9;
+      font-size: 13px;
+      margin: 8px 8px 6px 8px;
+      padding: 4px 5px;
+      border-radius: 2px;
+      border: 1px solid #b7b7b7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+    #codesContent h3 {
+      margin-top: 2px;
+      margin-bottom: 4px;
+      font-size: 15px;
+      color: #0030b0;
+    }
+    #codesContent code {
+      color: #0030b0;
+      background: none;
+      font-family: inherit;
+      font-size: inherit;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    #codesContent ul, #codesContent li {
+      margin: 0;
+      padding: 0 0 0 18px;
+      list-style: disc;
+    }
   </style>
 </head>
 <body>
   <div class="app-window">
     <div class="header">
-      <img src="https://i.ibb.co/yF5L2K8y/9efdcebc-1621-451f-a6de-11e696b2a84c-1.png" alt="logo">XMedia-WAP
+      <img src="https://i.ibb.co/9DmMmn9/Untitled-logo-1-free-file-1-1.jpg" alt="logo">XMedia-WAP
     </div>
     <div class="content-area" id="contentArea">
       <!-- Главное меню -->
@@ -228,6 +260,7 @@
         <li><a href="#" class="main-link" id="weatherMenuBtn">Погода</a></li>
         <li><a href="#" class="main-link" id="rssMenuBtn">RSS-услуги</a></li>
         <li><a href="#" class="main-link" id="photoMenuBtn">Фото-услуга</a></li>
+        <li><a href="#" class="main-link" id="codesMenuBtn">Коды</a></li>
       </ul>
       <!-- Погода страница -->
       <div id="weatherPage" style="display:none;">
@@ -297,9 +330,128 @@
         <div class="photo-loading" id="photoLoading"></div>
         <div id="photoResult"></div>
       </div>
+      <!-- Коды -->
+      <div id="codesPage" style="display:none;">
+        <div id="codesContent">
+<h3>Коды телефонов для получения различной информации о телефоне:</h3>
+<pre>
+<code>
+*#0000# - определение версии прошивки.
+*#6110# - попробуйте этот код, если предыдущий не работает.
+
+*3370#, отмена #3370# - улучшает качество звука и приема, но быстро садит батарею. EFR - Enhanced Full Rate, система для улучшенного качества вызова в телефонах GSM, за счет более быстрой разрядки батареи (около 5%). EFR использует улучшенное кодирование, чтобы улучшить качество вызова, не расширяя полосу частот.
+
+*4720#, отмена #4720# - уменьшает качество приема, но увеличивает время разряда батареи HFR - Half Rate - продлевает жизнь батареи где-то процентов на 30, за счет уменьшения примерно в половину полосы частот.
+
+*#06# - идентификационный номер.
+
+*#war0anty# (*#92702689#) - служебная информация: дата изготовления, серийный номер, дата покупки, был ли ремонт и когда, полный таймер аппарата.
+
+@ = кнопка посыла (SEND, YES)
+** = включить услугу и активировать (зарегистрировать)
+* = активировать услугу
+## = выключить услугу и деактивировать (отменить)
+# = деактивировать услугу
+*# = проверить состояние услуги на коммутаторе
+PW = password
+DestinationNumber = переадресуемый номер (номер на который устанавливается переадресация)
+
+Изменить PIN код
+Изменить PIN **04*oldPIN*newPIN*newPIN#@
+Изменить PIN2 **042*oldPIN2*newPIN2*newPIN2#@
+
+Разблокировать SIM - карту
+Разблокировать PIN **05*PUK*newPIN*newPIN#@
+Разблокировать PIN2 **052*PUK2*newPIN2*newPIN2#@
+
+Посмотреть IMEI (серийный номер телефона)
+*#06#
+
+Переадресация вызова (вы должны заказать услугу у оператора)
+Отменить все переадресации ##002#@
+Отменить все условные переадресации ##004#@
+Активировать все условные переадресации **004*DestinationNumber#@
+
+Безусловная переадресация (все звонки)
+Выключить и деактивировать безусловную переадресацию ##21#@
+Деактивировать безусловную переадресацию #21#@
+Включить и активировать безусловную переадресацию **21*DestinationNumber#@
+Включить безусловную переадресацию *21#@
+Проверить состояние безусловной переадресации *#21#@
+
+Переадресация «нет ответа»
+Выключить и деактивировать переадресацию «нет ответа» ##61#@
+Деактивировать переадресацию «нет ответа» #61#@
+Включить и активировать переадресацию «нет ответа» **61*DestinationNumber#@
+Включить переадресацию «нет ответа» *61#@
+Проверить состояние переадресации «нет ответа» *#61#@
+
+Переадресация «не доступен»
+Выключить и деактивировать переадресацию «не доступен» ##62#@
+Деактивировать переадресацию «не доступен» #62#@
+Включить и активировать переадресацию «не доступен» **62#DestinationNumber#@
+Включить переадресацию «недоступен» *62#@
+Проверить состояние переадресации «не доступен» *#62#@
+
+Переадресация «занято»
+Выключить и деактивировать переадресацию «занято» ##67#@
+Деактивировать переадресацию «занято» #67#@
+Включить и активировать переадресацию «занято» **67*DestinationNumber#@
+Включить переадресацию «занято» *67#@
+Проверить состояние переадресации «занято» *#67#@
+
+Установка времени звонка до срабатывания переадресации «нет ответа»
+Установить время ожидания **61*DestinationNumber**N#@ N= 5 – 30 (секунд)
+Удалить предыдущую установку ##61#@
+
+При установке переадресации по «нет ответа» вы можете задать время в секундах, которое система дает вам на поднятие трубки. Если за это время вы не подняли трубку, входящий звонок будет переадресован. Пример:
+**61*+709576617601234**30#@ устанавливает время ожидания 30 секунд.
+
+Запрет вызова (вы должны заказать услугу у оператора)
+Изменить пароль для всех запретов (начальный – 0000) **03*330*oldPW*newPW*newPW#@
+
+Запрет всех исходящих звонков
+Активировать запрет всех исходящих звонков **33*PW#@
+Деактивировать запрет всех исходящих звонков #33*PW#@
+Проверить состояние запрета всех исходящих звонков *#33#@
+
+Запрет всех звонков
+Активировать запрет всех звонков **330*PW#@
+Деактивировать запрет всех звонков #330*PW#@
+Проверить состояние запрета всех звонков *#330#@
+
+Запрет всех исходящих международных звонков
+Активировать запрет всех исходящих международных звонков **331*PW#@
+Деактивировать запрет всех исходящих международных звонков #331*PW#@
+Проверить состояние запрета всех исходящих междугородных звонков *#331#@
+
+Запрет всех исходящих звонков
+Активировать запрет всех исходящих звонков **333PW#@
+Деактивировать запрет всех исходящих звонков #333*PW#@
+
+Проверить состояние запрета всех исходящих звонков *#333#@
+
+Запрет всех входящих звонков
+Активировать запрет всех входящих звонков **35*PW#@ или **353*PW#@
+Деактивировать запрет всех входящих звонков #35*PW#@ или #353PW#@
+Проверить состояние запрета всех входящих звонков *#35#@ или *#353#@
+
+Запрет всех входящих звонком при роуминге
+Активировать запрет всех входящих звонков при роуминге **351*PW#@
+Деактивировать запрет всех входящих звонков при роуминге #351*PW#@
+Проверить состояние запрета всех входящих звонков при роуминге *#351#@
+
+Ожидание вызова (вы должны заказать услугу у оператора)
+Активировать ожидание вызова *43#@
+Деактивировать ожидание вызова #43#@
+Проверить состояние ожидания вызова *#43#@
+</code>
+</pre>
+        </div>
+      </div>
     </div>
     <!-- Options Popup -->
-    <div class="options-popup" id="optionsPopup">
+    <div class="options-popup" id="optionsPopup" style="display:none;">
       <label>Разрешение:</label>
       <button class="resolution-btn" id="res128Btn">128x160</button>
       <button class="resolution-btn selected" id="res240Btn">240x320</button>
@@ -332,6 +484,7 @@
       document.getElementById('rssPage').style.display = (page === 'rss') ? 'block' : 'none';
       document.getElementById('rssListPage').style.display = (page === 'rsslist') ? 'block' : 'none';
       document.getElementById('photoPage').style.display = (page === 'photo') ? 'block' : 'none';
+      document.getElementById('codesPage').style.display = (page === 'codes') ? 'block' : 'none';
       updateFooter(page);
       // Back button logic
       var backBtn = document.getElementById('backBtn');
@@ -346,6 +499,7 @@
     document.getElementById('weatherMenuBtn').onclick = function(){ showPage('weather'); return false; };
     document.getElementById('rssMenuBtn').onclick = function(){ showPage('rss'); return false; };
     document.getElementById('photoMenuBtn').onclick = function(){ showPage('photo'); return false; };
+    document.getElementById('codesMenuBtn').onclick = function(){ showPage('codes'); return false; };
 
     // В RSS ленте возврат к списку RSS
     document.getElementById('backBtnRssList').onclick = function() {
@@ -354,7 +508,7 @@
     // Главный футер Back
     document.getElementById('backBtn').onclick = function() {
       if(document.getElementById('rssListPage').style.display === 'block') showPage('rss');
-      else if(document.getElementById('rssPage').style.display === 'block' || document.getElementById('weatherPage').style.display === 'block' || document.getElementById('photoPage').style.display === 'block') showPage('main');
+      else if(document.getElementById('rssPage').style.display === 'block' || document.getElementById('weatherPage').style.display === 'block' || document.getElementById('photoPage').style.display === 'block' || document.getElementById('codesPage').style.display === 'block') showPage('main');
     };
 
     // Options popup logic (для обоих футеров)
@@ -542,9 +696,9 @@
                   var hit = parsed.hits[i];
                   var title = hit.tags ? hit.tags.split(',')[0] : 'Фото';
                   html += '<div class="photo-thumb">' +
-                    '<a href="' + hit.largeImageURL + '" download target="_blank">' +
+                    '<a href="' + hit.largeImageURL + '" target="_blank">' +
                     '<img src="' + hit.previewURL + '" alt="' + title + '">' +
-                    '<span>Скачать</span></a></div>';
+                    '<span>Посмотреть</span></a></div>';
                 }
                 photoResult.innerHTML = html;
               } else {
