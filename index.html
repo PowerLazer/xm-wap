@@ -120,7 +120,7 @@
       white-space: normal;
       overflow-wrap: break-word;
     }
-    .weather, #rssList {
+    .weather, #rssList, #photoResult {
       border: 1px solid #b7b7b7;
       background: #f9f9f9;
       border-radius: 2px;
@@ -180,46 +180,40 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .loading, .rss-loading {
+    .loading, .rss-loading, .photo-loading {
       color: #555;
       text-align: center;
       font-size: 12px;
       word-break: break-word;
       max-width: 100%;
     }
-    .options-popup {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #f9f9f9;
+    .photo-thumb {
+      display: inline-block;
+      margin: 3px;
       border: 1px solid #b7b7b7;
-      border-radius: 4px;
-      min-width: 120px;
-      z-index: 200;
-      padding: 8px 8px 8px 8px;
-      text-align: left;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.07);
-      font-size: 13px;
-      display: none;
-    }
-    .options-popup label { display: block; margin-bottom: 4px; }
-    .options-popup .resolution-btn {
-      margin: 2px 0;
-      width: 100%;
-      font-size: 13px;
-      background: #e0e6f8;
-      color: #0030b0;
-      border: 1px solid #b7b7b7;
-      border-radius: 2px;
-      cursor: pointer;
-      padding: 3px 0;
+      border-radius: 3px;
+      background: #fff;
+      vertical-align: middle;
+      max-width: 60px;
+      max-height: 60px;
+      overflow: hidden;
       text-align: center;
-      display: block;
     }
-    .options-popup .resolution-btn.selected {
-      background: #c6defb;
-      color: #000;
+    .photo-thumb img {
+      max-width: 60px;
+      max-height: 60px;
+      vertical-align: middle;
+      display: block;
+      margin: 0 auto;
+      border-radius: 2px;
+    }
+    .photo-thumb a {
+      text-decoration: none;
+      color: #0030b0;
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+      word-break: break-all;
     }
   </style>
 </head>
@@ -233,6 +227,7 @@
       <ul class="main-menu" id="mainMenu">
         <li><a href="#" class="main-link" id="weatherMenuBtn">Погода</a></li>
         <li><a href="#" class="main-link" id="rssMenuBtn">RSS-услуги</a></li>
+        <li><a href="#" class="main-link" id="photoMenuBtn">Фото-услуга</a></li>
       </ul>
       <!-- Погода страница -->
       <div id="weatherPage" style="display:none;">
@@ -282,20 +277,25 @@
         <ul class="rss-menu">
           <li><a href="#" class="rss-link" data-url="https://www.liga.net/rss/blog.xml">Все материалы (Блоги)</a></li>
         </ul>
-        <div style="margin:10px 0 0 0;">
-          <a href="#" class="main-link" id="backFromRss">Назад</a>
-        </div>
       </div>
       <!-- РСС список -->
       <div id="rssListPage" style="display:none;">
-        <a href="#" class="main-link" id="backFromRssList" style="margin-left:8px;margin-top:10px;margin-bottom:4px;display:inline-block;">Назад</a>
         <div class="rss-loading" id="rssLoading"></div>
         <div id="rssList"></div>
-        <!-- Футер с Options/Back ДЛЯ RSS-ЛЕНТЫ -->
         <div class="footer">
           <button type="button" class="footer-btn" id="optionsBtnRssList">Options</button>
           <button type="button" class="footer-btn" id="backBtnRssList">Back</button>
         </div>
+      </div>
+      <!-- Фото-услуга -->
+      <div id="photoPage" style="display:none;">
+        <form id="photoForm" autocomplete="off">
+          <label class="form-label" for="photoInput">Запрос для поиска фото:</label>
+          <input type="text" id="photoInput" class="input-box" placeholder="Например: mountains" required>
+          <button type="submit" class="submit-btn">Показать</button>
+        </form>
+        <div class="photo-loading" id="photoLoading"></div>
+        <div id="photoResult"></div>
       </div>
     </div>
     <!-- Options Popup -->
@@ -331,6 +331,7 @@
       document.getElementById('weatherPage').style.display = (page === 'weather') ? 'block' : 'none';
       document.getElementById('rssPage').style.display = (page === 'rss') ? 'block' : 'none';
       document.getElementById('rssListPage').style.display = (page === 'rsslist') ? 'block' : 'none';
+      document.getElementById('photoPage').style.display = (page === 'photo') ? 'block' : 'none';
       updateFooter(page);
       // Back button logic
       var backBtn = document.getElementById('backBtn');
@@ -344,19 +345,18 @@
     }
     document.getElementById('weatherMenuBtn').onclick = function(){ showPage('weather'); return false; };
     document.getElementById('rssMenuBtn').onclick = function(){ showPage('rss'); return false; };
-    document.getElementById('backFromRss').onclick = function(){ showPage('main'); return false; };
-    document.getElementById('backFromRssList').onclick = function(){ showPage('rss'); return false; };
+    document.getElementById('photoMenuBtn').onclick = function(){ showPage('photo'); return false; };
 
-    // Реакция на Back в главном футере
-    document.getElementById('backBtn').onclick = function() {
-      if(document.getElementById('rssListPage').style.display === 'block') showPage('rss');
-      else if(document.getElementById('rssPage').style.display === 'block' || document.getElementById('weatherPage').style.display === 'block') showPage('main');
-    };
-
-    // Реакция на Back в футере RSS-ленты
+    // В RSS ленте возврат к списку RSS
     document.getElementById('backBtnRssList').onclick = function() {
       showPage('rss');
     };
+    // Главный футер Back
+    document.getElementById('backBtn').onclick = function() {
+      if(document.getElementById('rssListPage').style.display === 'block') showPage('rss');
+      else if(document.getElementById('rssPage').style.display === 'block' || document.getElementById('weatherPage').style.display === 'block' || document.getElementById('photoPage').style.display === 'block') showPage('main');
+    };
+
     // Options popup logic (для обоих футеров)
     var optionsPopup = document.getElementById('optionsPopup');
     var optionsBtn = document.getElementById('optionsBtn');
@@ -427,7 +427,6 @@
       if (city) {
         weatherBox.innerHTML = '';
         loading.innerHTML = 'Загрузка...';
-        // Поддержка старых браузеров: XMLHttpRequest
         var xhr = new XMLHttpRequest();
         var url = "https://api.openweathermap.org/data/2.5/weather?q=" + encodeURIComponent(city) + "&appid=" + apiKey + "&units=metric&lang=ru";
         xhr.open("GET", url, true);
@@ -479,7 +478,6 @@
     function loadRSS(rssUrl) {
       rssList.innerHTML = '';
       rssLoading.innerHTML = 'Загрузка...';
-      // Поддержка старых браузеров: XMLHttpRequest
       var xhr = new XMLHttpRequest();
       xhr.open("GET", 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl), true);
       xhr.onreadystatechange = function() {
@@ -505,13 +503,63 @@
       var xml = parser.parseFromString(xmlText, "text/xml");
       var items = xml.getElementsByTagName('item');
       var html = '';
-      for (var i = 0; i < items.length && i < 10; i++) { // показываем только 10 новостей
+      for (var i = 0; i < items.length && i < 10; i++) {
         var title = items[i].getElementsByTagName('title')[0].textContent;
         var link = items[i].getElementsByTagName('link')[0].textContent;
         html += '<a href="' + link + '" target="_blank">' + title + '</a><br>';
       }
       rssList.innerHTML = html || 'Нет новостей';
     }
+
+    // Фото-услуга
+    const photoForm = document.getElementById('photoForm');
+    const photoInput = document.getElementById('photoInput');
+    const photoResult = document.getElementById('photoResult');
+    const photoLoading = document.getElementById('photoLoading');
+    const PIXABAY_KEY = "49803404-dcce4170e425cb5d5f2b6151c";
+
+    photoForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const query = photoInput.value.trim();
+      photoResult.innerHTML = '';
+      photoLoading.innerHTML = '';
+      if (!query) return;
+      photoLoading.innerHTML = 'Загрузка...';
+      var pixabayUrl = 'https://pixabay.com/api/?key=' + PIXABAY_KEY + '&q=' + encodeURIComponent(query) + '&image_type=photo&safesearch=true&lang=ru&per_page=10';
+      var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(pixabayUrl);
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState == 4) {
+          photoLoading.innerHTML = '';
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              var parsed = JSON.parse(data.contents);
+              if (parsed.hits && parsed.hits.length > 0) {
+                var html = '';
+                for (var i = 0; i < parsed.hits.length; i++) {
+                  var hit = parsed.hits[i];
+                  var title = hit.tags ? hit.tags.split(',')[0] : 'Фото';
+                  html += '<div class="photo-thumb">' +
+                    '<a href="' + hit.largeImageURL + '" download target="_blank">' +
+                    '<img src="' + hit.previewURL + '" alt="' + title + '">' +
+                    '<span>Скачать</span></a></div>';
+                }
+                photoResult.innerHTML = html;
+              } else {
+                photoResult.innerHTML = 'Ничего не найдено';
+              }
+            } catch (e) {
+              photoResult.innerHTML = 'Ошибка обработки ответа';
+            }
+          } else {
+            photoResult.innerHTML = 'Ошибка загрузки фото';
+          }
+        }
+      };
+      xhr.send(null);
+    });
 
     // Инициализация
     setResolution(240, 320);
