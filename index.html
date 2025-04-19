@@ -120,7 +120,7 @@
       white-space: normal;
       overflow-wrap: break-word;
     }
-    .weather, #rssList, #photoResult, #codesContent {
+    .weather, #rssList, #photoResult, #codesContent, #aboutContent, #entertainContent {
       border: 1px solid #b7b7b7;
       background: #f9f9f9;
       border-radius: 2px;
@@ -180,7 +180,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .loading, .rss-loading, .photo-loading {
+    .loading, .rss-loading, .photo-loading, #entertainLoading {
       color: #555;
       text-align: center;
       font-size: 12px;
@@ -215,7 +215,6 @@
       margin-top: 2px;
       word-break: break-all;
     }
-    /* Коды */
     #codesContent {
       background: #f9f9f9;
       font-size: 13px;
@@ -228,24 +227,56 @@
       overflow-x: auto;
       box-sizing: border-box;
     }
-    #codesContent h3 {
-      margin-top: 2px;
-      margin-bottom: 4px;
-      font-size: 15px;
-      color: #0030b0;
+    #aboutContent {
+      background: #f9f9f9;
+      font-size: 13px;
+      margin: 8px 8px 6px 8px;
+      padding: 4px 5px;
+      border-radius: 2px;
+      border: 1px solid #b7b7b7;
+      white-space: normal;
+      word-break: break-word;
+      overflow-x: auto;
+      box-sizing: border-box;
     }
-    #codesContent code {
+    #entertainContent {
+      min-height: 80px;
+    }
+    #entertainForm input {
+      width: 96%;
+      font-size: 13px;
+      border: 1px solid #bbb;
+      background: #f8f8f8;
+      border-radius: 1px;
+      padding: 2px 3px;
+      margin-bottom: 3px;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+    #entertainForm button {
+      font-size: 13px;
+      border: 1px solid #b7b7b7;
+      border-radius: 2px;
+      background: #e0e6f8;
       color: #0030b0;
-      background: none;
-      font-family: inherit;
-      font-size: inherit;
+      padding: 2px 14px;
+      cursor: pointer;
+    }
+    #entertainChat {
+      margin: 0 0 5px 0;
+      min-height: 40px;
+      font-size:13px;
       white-space: pre-wrap;
       word-break: break-word;
     }
-    #codesContent ul, #codesContent li {
-      margin: 0;
-      padding: 0 0 0 18px;
-      list-style: disc;
+    #entertainChat .e-user {
+      color: #002366;
+      font-weight: bold;
+    }
+    #entertainChat .e-bot {
+      color: #006400;
+      margin-left: 2px;
+      display: block;
     }
   </style>
 </head>
@@ -261,6 +292,8 @@
         <li><a href="#" class="main-link" id="rssMenuBtn">RSS-услуги</a></li>
         <li><a href="#" class="main-link" id="photoMenuBtn">Фото-услуга</a></li>
         <li><a href="#" class="main-link" id="codesMenuBtn">Коды</a></li>
+        <li><a href="#" class="main-link" id="entertainMenuBtn">Развлечение</a></li>
+        <li><a href="#" class="main-link" id="aboutMenuBtn">О сайте</a></li>
       </ul>
       <!-- Погода страница -->
       <div id="weatherPage" style="display:none;">
@@ -332,10 +365,9 @@
       </div>
       <!-- Коды -->
       <div id="codesPage" style="display:none;">
-        <div id="codesContent">
-<h3>Коды телефонов для получения различной информации о телефоне:</h3>
-<pre>
-<code>
+        <div id="codesContent" style="white-space:pre-wrap;">
+Коды телефонов для получения различной информации о телефоне:
+
 *#0000# - определение версии прошивки.
 *#6110# - попробуйте этот код, если предыдущий не работает.
 
@@ -407,6 +439,7 @@ DestinationNumber = переадресуемый номер (номер на к�
 При установке переадресации по «нет ответа» вы можете задать время в секундах, которое система дает вам на поднятие трубки. Если за это время вы не подняли трубку, входящий звонок будет переадресован. Пример:
 **61*+709576617601234**30#@ устанавливает время ожидания 30 секунд.
 
+
 Запрет вызова (вы должны заказать услугу у оператора)
 Изменить пароль для всех запретов (начальный – 0000) **03*330*oldPW*newPW*newPW#@
 
@@ -445,8 +478,57 @@ DestinationNumber = переадресуемый номер (номер на к�
 Активировать ожидание вызова *43#@
 Деактивировать ожидание вызова #43#@
 Проверить состояние ожидания вызова *#43#@
-</code>
-</pre>
+        </div>
+      </div>
+      <!-- Развлечение -->
+      <div id="entertainPage" style="display:none;">
+        <div id="entertainContent">
+          <h3>Развлечение — Нейросеть</h3>
+          <div style="font-size:12px;color:#333;margin-bottom:6px;">
+            Здесь вы можете пообщаться с нейросетью.<br>
+            Используется <b>deepseek/deepseek-chat-v3-0324:free</b> через <a href="https://openrouter.ai/api/v1" target="_blank">OpenRouter API</a>.<br>
+            <b>API-ключ уже встроен!</b><br>
+            <b>Внимание:</b> все ваши сообщения могут быть обработаны внешним сервисом.
+          </div>
+          <form id="entertainForm" autocomplete="off">
+            <input type="text" id="entertainPrompt" placeholder="Ваш вопрос..." required>
+            <button type="submit">Спросить</button>
+          </form>
+          <div id="entertainLoading"></div>
+          <div id="entertainChat"></div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">
+            <b>Модель:</b> deepseek/deepseek-chat-v3-0324:free<br>
+            <a href="https://openrouter.ai" target="_blank" style="color:#888;">openrouter.ai</a>
+          </div>
+        </div>
+      </div>
+      <!-- О сайте -->
+      <div id="aboutPage" style="display:none;">
+        <div id="aboutContent">
+          <h3>О сайте</h3>
+          <b>XMedia-WAP</b> — WAP-приложение для старых мобильных телефонов.<br>
+          <b>Версия:</b> 19.04.25 2.11<br>
+          <br>
+          <b>Возможности:</b>
+          <ul>
+            <li>Погода по городам</li>
+            <li>Новости через RSS-ленты</li>
+            <li>Поиск фото по ключевым словам</li>
+            <li>Справочник инженерных и сервисных кодов</li>
+            <li>Развлечение — нейросеть</li>
+          </ul>
+          <b>Особенности:</b>
+          <ul>
+            <li>Минимальный трафик — работает даже на старых телефонах</li>
+            <li>Совместимость с экранами 128x160 и 240x320</li>
+            <li>Безопасность: сайт только отображает данные, ничего не выполняет на устройстве</li>
+            <li>Быстрое переключение между сервисами</li>
+          </ul>
+          <b>Автор:</b> PowerLazer<br>
+          <b>Сайт:</b> <a href="https://powerlazer.github.io/xm-wap/" target="_blank">https://powerlazer.github.io/xm-wap/</a><br>
+          <br>
+          Приложение предназначено для владельцев классических мобильных телефонов, эмуляторов и любителей ретро-устройств. Все сервисы бесплатны и открыты.<br>
+          <span style="font-size:11px;color:#888;">&copy; 2025 PowerLazer</span>
         </div>
       </div>
     </div>
@@ -464,7 +546,7 @@ DestinationNumber = переадресуемый номер (номер на к�
     </div>
   </div>
   <script>
-    // Показывать/скрывать футеры в зависимости от страницы
+    // ----- Стандартные функции переключения страниц и опций -----
     function updateFooter(page) {
       var mainFooter = document.getElementById('mainFooter');
       var rssListFooter = document.querySelector('#rssListPage .footer');
@@ -476,8 +558,6 @@ DestinationNumber = переадресуемый номер (номер на к�
         if (rssListFooter) rssListFooter.style.display = 'none';
       }
     }
-
-    // Переключение страниц
     function showPage(page) {
       document.getElementById('mainMenu').style.display = (page === 'main') ? 'block' : 'none';
       document.getElementById('weatherPage').style.display = (page === 'weather') ? 'block' : 'none';
@@ -485,8 +565,9 @@ DestinationNumber = переадресуемый номер (номер на к�
       document.getElementById('rssListPage').style.display = (page === 'rsslist') ? 'block' : 'none';
       document.getElementById('photoPage').style.display = (page === 'photo') ? 'block' : 'none';
       document.getElementById('codesPage').style.display = (page === 'codes') ? 'block' : 'none';
+      document.getElementById('entertainPage').style.display = (page === 'entertain') ? 'block' : 'none';
+      document.getElementById('aboutPage').style.display = (page === 'about') ? 'block' : 'none';
       updateFooter(page);
-      // Back button logic
       var backBtn = document.getElementById('backBtn');
       if(page === 'main'){
         backBtn.disabled = true;
@@ -500,18 +581,20 @@ DestinationNumber = переадресуемый номер (номер на к�
     document.getElementById('rssMenuBtn').onclick = function(){ showPage('rss'); return false; };
     document.getElementById('photoMenuBtn').onclick = function(){ showPage('photo'); return false; };
     document.getElementById('codesMenuBtn').onclick = function(){ showPage('codes'); return false; };
-
-    // В RSS ленте возврат к списку RSS
+    document.getElementById('entertainMenuBtn').onclick = function(){ showPage('entertain'); return false; };
+    document.getElementById('aboutMenuBtn').onclick = function(){ showPage('about'); return false; };
     document.getElementById('backBtnRssList').onclick = function() {
       showPage('rss');
     };
-    // Главный футер Back
     document.getElementById('backBtn').onclick = function() {
       if(document.getElementById('rssListPage').style.display === 'block') showPage('rss');
-      else if(document.getElementById('rssPage').style.display === 'block' || document.getElementById('weatherPage').style.display === 'block' || document.getElementById('photoPage').style.display === 'block' || document.getElementById('codesPage').style.display === 'block') showPage('main');
+      else if(document.getElementById('rssPage').style.display === 'block' 
+        || document.getElementById('weatherPage').style.display === 'block' 
+        || document.getElementById('photoPage').style.display === 'block' 
+        || document.getElementById('codesPage').style.display === 'block'
+        || document.getElementById('entertainPage').style.display === 'block'
+        || document.getElementById('aboutPage').style.display === 'block') showPage('main');
     };
-
-    // Options popup logic (для обоих футеров)
     var optionsPopup = document.getElementById('optionsPopup');
     var optionsBtn = document.getElementById('optionsBtn');
     var optionsBtnRssList = document.getElementById('optionsBtnRssList');
@@ -527,14 +610,11 @@ DestinationNumber = переадресуемый номер (номер на к�
     document.getElementById('closeOptionsBtn').onclick = function() {
       showOptions(false);
     };
-
-    // Resolution switching
     function setResolution(width, height) {
       document.documentElement.style.setProperty('--screen-width', width + 'px');
       document.documentElement.style.setProperty('--screen-height', height + 'px');
       document.querySelector('.app-window').style.width = width + 'px';
       document.querySelector('.app-window').style.height = height + 'px';
-      // Меняем meta viewport
       document.getElementById('viewportMeta').setAttribute('content', 'width=' + width + ', height=' + height + ', initial-scale=1.0, user-scalable=no');
       if(width === 128) {
         document.getElementById('res128Btn').classList.add('selected');
@@ -554,8 +634,6 @@ DestinationNumber = переадресуемый номер (номер на к�
       showOptions(false);
       return false;
     };
-
-    // Клик вне popup — закрытие
     document.addEventListener('mousedown', function(e) {
       if(optionsPopup.style.display === 'block' && !optionsPopup.contains(e.target) && e.target !== optionsBtn && e.target !== optionsBtnRssList) {
         showOptions(false);
@@ -568,12 +646,10 @@ DestinationNumber = переадресуемый номер (номер на к�
     const input = document.getElementById('cityInput');
     const weatherBox = document.getElementById('weatherBox');
     const loading = document.getElementById('loading');
-
     function clearWeather() {
       weatherBox.innerHTML = '';
       loading.innerHTML = '';
     }
-
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       clearWeather();
@@ -602,7 +678,6 @@ DestinationNumber = переадресуемый номер (номер на к�
         xhr.send(null);
       }
     });
-
     function showWeather(data) {
       weatherBox.innerHTML = 
         '<strong>' + data.name + ', ' + data.sys.country + '</strong><br>' +
@@ -628,7 +703,6 @@ DestinationNumber = переадресуемый номер (номер на к�
         return false;
       };
     });
-
     function loadRSS(rssUrl) {
       rssList.innerHTML = '';
       rssLoading.innerHTML = 'Загрузка...';
@@ -651,7 +725,6 @@ DestinationNumber = переадресуемый номер (номер на к�
       };
       xhr.send(null);
     }
-
     function displayRSS(xmlText) {
       var parser = new window.DOMParser();
       var xml = parser.parseFromString(xmlText, "text/xml");
@@ -671,7 +744,6 @@ DestinationNumber = переадресуемый номер (номер на к�
     const photoResult = document.getElementById('photoResult');
     const photoLoading = document.getElementById('photoLoading');
     const PIXABAY_KEY = "49803404-dcce4170e425cb5d5f2b6151c";
-
     photoForm.addEventListener('submit', function(e){
       e.preventDefault();
       const query = photoInput.value.trim();
@@ -715,7 +787,74 @@ DestinationNumber = переадресуемый номер (номер на к�
       xhr.send(null);
     });
 
-    // Инициализация
+    // Развлечение (нейросеть OpenRouter)
+    const entertainForm = document.getElementById('entertainForm');
+    const entertainPrompt = document.getElementById('entertainPrompt');
+    const entertainLoading = document.getElementById('entertainLoading');
+    const entertainChat = document.getElementById('entertainChat');
+    const ENTERTAIN_API_KEY = "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";
+    let entertainHistory = [];
+    entertainForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const prompt = entertainPrompt.value.trim();
+      if (!prompt) return;
+      entertainPrompt.value = '';
+      entertainLoading.innerHTML = 'Ожидание ответа...';
+      entertainHistory.push({role: "user", content: prompt});
+      renderEntertainChat();
+      // Считаем количество ответов бота и если их больше 3, то удаляем первую пару user+assistant
+      let botAnswers = entertainHistory.filter(m => m.role === "assistant").length;
+      if (botAnswers >= 3) {
+        // Найти первую пару user+assistant и удалить их
+        let userIdx = entertainHistory.findIndex(m => m.role === "user");
+        let assistantIdx = entertainHistory.findIndex((m, i) => m.role === "assistant" && i > userIdx);
+        if (userIdx >= 0 && assistantIdx > userIdx) {
+          entertainHistory.splice(userIdx, 2);
+        }
+      }
+      // Собираем последние сообщения
+      const messages = entertainHistory.slice(-7);
+      fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + ENTERTAIN_API_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "deepseek/deepseek-chat-v3-0324",
+          messages: messages
+        })
+      })
+      .then(resp => resp.json())
+      .then(data => {
+        entertainLoading.innerHTML = '';
+        if (data.choices && data.choices.length > 0) {
+          const reply = data.choices[0].message.content;
+          entertainHistory.push({role: "assistant", content: reply});
+          renderEntertainChat();
+        } else {
+          entertainHistory.push({role: "assistant", content: "[Ошибка или пустой ответ нейросети]"});
+          renderEntertainChat();
+        }
+      })
+      .catch(err => {
+        entertainLoading.innerHTML = '';
+        entertainHistory.push({role: "assistant", content: "[Ошибка запроса: " + (err.message || err) + "]"});
+        renderEntertainChat();
+      });
+    });
+    function renderEntertainChat() {
+      entertainChat.innerHTML = entertainHistory.map(msg =>
+        msg.role === "user"
+        ? `<div class="e-user">Вы: ${escapeHtml(msg.content)}</div>`
+        : `<div class="e-bot">Бот: ${escapeHtml(msg.content)}</div>`
+      ).join('');
+    }
+    function escapeHtml(s) {
+      return s.replace(/[<>&"]/g, c => (
+        {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]
+      ));
+    }
     setResolution(240, 320);
     showPage('main');
   </script>
