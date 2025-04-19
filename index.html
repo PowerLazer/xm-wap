@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" id="viewportMeta" content="width=240, height=320, initial-scale=1.0, user-scalable=no">
+  <title>XMedia-WAP</title>
+  <style>
+    :root {
+      --screen-width: 240px;
+      --screen-height: 320px;
+    }
+    html, body {
+      margin: 0; padding: 0; background: #eee;
+    }
+    .app-window {
+      width: var(--screen-width);
+      height: var(--screen-height);
+      min-width: var(--screen-width);
+      max-width: var(--screen-width);
+      min-height: var(--screen-height);
+      max-height: var(--screen-height);
+      /* border: 1px solid #d8c9a6; Убрал общий border */
+      background: #fff;
+      box-sizing: border-box;
+      font-family: Verdana, Arial, sans-serif;
+      font-size: 13px;
+      color: #000;
+      overflow: auto;
+      margin: 0;
+      position: absolute;
+      left: 0; top: 0;
+    }
+    .header {
+      width: 100%;
+      background: #e0e6f8;
+      border-bottom: 1px solid #b7b7b7;
+      text-align: center;
+      padding: 3px 0 2px 0;
+      font-weight: bold;
+      font-size: 15px;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    .content-area {
+      width: 100%;
+      min-height: 140px;
+      max-height: 100%;
+      overflow: visible;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    .main-menu, .rss-menu {
+      margin: 8px 8px 0 8px;
+      padding: 0;
+      list-style: none;
+      width: calc(var(--screen-width) - 16px);
+      box-sizing: border-box;
+    }
+    .main-menu li, .rss-menu li {
+      margin-bottom: 5px;
+      width: 100%;
+    }
+    .main-link, .rss-link {
+      display: block;
+      color: #0030b0;
+      background: #f9f9f9;
+      border: 1px solid #b7b7b7;
+      border-radius: 2px;
+      padding: 3px 5px;
+      text-decoration: underline;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+      word-break: break-all;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .main-link:active, .rss-link:active, .main-link.selected, .rss-link.selected {
+      background: #c6defb;
+      color: #000;
+    }
+    .form-label {
+      display: block;
+      margin: 5px 0 2px 0;
+      font-size: 12px;
+      color: #000;
+    }
+    .input-box {
+      width: 98%;
+      font-size: 13px;
+      border: 1px solid #bbb;
+      background: #f8f8f8;
+      border-radius: 1px;
+      padding: 2px 3px;
+      margin-bottom: 2px;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+    .submit-btn {
+      margin: 7px 0 0 0;
+      font-size: 13px;
+      border: 1px solid #b7b7b7;
+      background: #e0e6f8;
+      color: #0030b0;
+      border-radius: 2px;
+      padding: 2px 18px;
+      cursor: pointer;
+      max-width: 100%;
+      word-break: break-all;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+    .weather, #rssList, #photoResult, #codesContent, #aboutContent, #entertainContent {
+      border: 1px solid #b7b7b7;
+      background: #f9f9f9;
+      border-radius: 2px;
+      margin: 8px 8px 6px 8px;
+      padding: 4px 5px;
+      font-size: 13px;
+      text-align: left;
+      word-break: break-word;
+      max-width: calc(var(--screen-width) - 20px);
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+    .icon {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+    }
+    .footer {
+      width: 100%;
+      height: 26px;
+      font-size: 13px;
+      background: #fff;
+      border-top: 1px solid #d8c9a6;
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 12px 3px 12px;
+      box-sizing: border-box;
+      z-index: 10;
+      margin-top: 5px;
+    }
+    .footer-btn {
+      background: none;
+      border: none;
+      color: #0030b0;
+      font-size: 13px;
+      font-family: inherit;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      min-width: 44px;
+      height: 22px;
+      text-align: center;
+    }
+    .footer-btn:active {
+      background: #c6defb;
+      color: #000;
+    }
+    .rss-section-title {
+      margin: 8px 0 3px 0;
+      font-weight: bold;
+      font-size: 12px;
+      color: #0030b0;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .loading, .rss-loading, .photo-loading, #entertainLoading {
+      color: #555;
+      text-align: center;
+      font-size: 12px;
+      word-break: break-word;
+      max-width: 100%;
+    }
+    .photo-thumb {
+      display: inline-block;
+      margin: 3px;
+      border: 1px solid #b7b7b7;
+      border-radius: 3px;
+      background: #fff;
+      vertical-align: middle;
+      max-width: 60px;
+      max-height: 60px;
+      overflow: hidden;
+      text-align: center;
+    }
+    .photo-thumb img {
+      max-width: 60px;
+      max-height: 60px;
+      vertical-align: middle;
+      display: block;
+      margin: 0 auto;
+      border-radius: 2px;
+    }
+    .photo-thumb a {
+      text-decoration: none;
+      color: #0030b0;
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+      word-break: break-all;
+    }
+    #codesContent {
+      background: #f9f9f9;
+      font-size: 13px;
+      margin: 8px 8px 6px 8px;
+      padding: 4px 5px;
+      border-radius: 2px;
+      border: 1px solid #b7b7b7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+    #aboutContent {
+      background: #f9f9f9;
+      font-size: 13px;
+      margin: 8px 8px 6px 8px;
+      padding: 4px 5px;
+      border-radius: 2px;
+      border: 1px solid #b7b7b7;
+      white-space: normal;
+      word-break: break-word;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+    #entertainContent {
+      min-height: 80px;
+    }
+    #entertainForm input {
+      width: 96%;
+      font-size: 13px;
+      border: 1px solid #bbb;
+      background: #f8f8f8;
+      border-radius: 1px;
+      padding: 2px 3px;
+      margin-bottom: 3px;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+    #entertainForm button {
+      font-size: 13px;
+      border: 1px solid #b7b7b7;
+      border-radius: 2px;
+      background: #e0e6f8;
+      color: #0030b0;
+      padding: 2px 14px;
+      cursor: pointer;
+    }
+    #entertainChat {
+      margin: 0 0 5px 0;
+      min-height: 40px;
+      font-size:13px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    #entertainChat .e-user {
+      color: #002366;
+      font-weight: bold;
+    }
+    #entertainChat .e-bot {
+      color: #006400;
+      margin-left: 2px;
+      display: block;
+    }
+    /* Opera Mini 4.4 fix: убираем border у .app-window, только у контентных блоков */
+    @media all and (min-width:0px) {
+      .app-window { border: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-window">
+    <div class="header">
+      <img src="https://i.ibb.co/9DmMmn9/Untitled-logo-1-free-file-1-1.jpg" alt="logo">XMedia-WAP
+    </div>
+    <div class="content-area" id="contentArea">
+      <!-- Главное меню -->
+      <ul class="main-menu" id="mainMenu">
+        <li><a href="#" class="main-link" id="weatherMenuBtn">Погода</a></li>
+        <li><a href="#" class="main-link" id="rssMenuBtn">RSS-услуги</a></li>
+        <li><a href="#" class="main-link" id="photoMenuBtn">Фото-услуга</a></li>
+        <li><a href="#" class="main-link" id="codesMenuBtn">Коды</a></li>
+        <li><a href="#" class="main-link" id="entertainMenuBtn">Развлечение</a></li>
+        <li><a href="#" class="main-link" id="aboutMenuBtn">О сайте</a></li>
+      </ul>
+      <!-- Погода страница -->
+      <div id="weatherPage" style="display:none;">
+        <form id="weatherForm" autocomplete="off">
+          <label class="form-label" for="cityInput">Город:</label>
+          <input type="text" id="cityInput" class="input-box" placeholder="Введите город" required>
+          <button type="submit" class="submit-btn">Показать</button>
+        </form>
+        <div class="weather" id="weatherBox"></div>
+        <div class="loading" id="loading"></div>
+      </div>
+      <!-- RSS меню -->
+      <div id="rssPage" style="display:none;">
+        <div class="rss-section-title">НОВОСТИ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/rss.xml">Новости</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/articles/rss.xml">Статьи</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/interview/rss.xml">Интервью</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/society/rss.xml">Общество</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/news/world/rss.xml">Мир</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/newsua/all/rss.xml">Все материалы</a></li>
+        </ul>
+        <div class="rss-section-title">БИЗНЕС</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/all/rss.xml">Все материалы (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/news/rss.xml">Новости (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/articles/rss.xml">Статьи (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/interview/rss.xml">Интервью (Бизнес)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/biz/photo/rss.xml">Фотоматериалы (Бизнес)</a></li>
+        </ul>
+        <div class="rss-section-title">ФИНАНСЫ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/all.xml">Все материалы (Финансы)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/top.xml">Главные материалы (Финансы)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/bank.xml">Банки</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/insurance.xml">Страхование</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/crypto/rss.xml">Криптоэкономика</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/fin/export/funds.xml">Фонды</a></li>
+        </ul>
+        <div class="rss-section-title">ТЕХНОЛОГИИ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/tech/all/rss.xml">Все материалы (Технологии)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/tech/top/rss.xml">Главные материалы (Технологии)</a></li>
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/tech/technology/rss.xml">Технологии</a></li>
+        </ul>
+        <div class="rss-section-title">БЛОГИ</div>
+        <ul class="rss-menu">
+          <li><a href="#" class="rss-link" data-url="https://www.liga.net/rss/blog.xml">Все материалы (Блоги)</a></li>
+        </ul>
+      </div>
+      <!-- РСС список -->
+      <div id="rssListPage" style="display:none;">
+        <div class="rss-loading" id="rssLoading"></div>
+        <div id="rssList"></div>
+        <div class="footer">
+          <button type="button" class="footer-btn" id="optionsBtnRssList">Options</button>
+          <button type="button" class="footer-btn" id="backBtnRssList">Back</button>
+        </div>
+      </div>
+      <!-- Фото-услуга -->
+      <div id="photoPage" style="display:none;">
+        <form id="photoForm" autocomplete="off">
+          <label class="form-label" for="photoInput">Запрос для поиска фото:</label>
+          <input type="text" id="photoInput" class="input-box" placeholder="Например: mountains" required>
+          <button type="submit" class="submit-btn">Показать</button>
+        </form>
+        <div class="photo-loading" id="photoLoading"></div>
+        <div id="photoResult"></div>
+      </div>
+      <!-- Коды -->
+      <div id="codesPage" style="display:none;">
+        <div id="codesContent" style="white-space:pre-wrap;">
+Коды телефонов для получения различной информации о телефоне:
+
+*#0000# - определение версии прошивки.
+*#6110# - попробуйте этот код, если предыдущий не работает.
+
+*3370#, отмена #3370# - улучшает качество звука и приема, но быстро садит батарею. EFR - Enhanced Full Rate, система для улучшенного качества вызова в телефонах GSM, за счет более быстрой разрядки батареи (около 5%). EFR использует улучшенное кодирование, чтобы улучшить качество вызова, не расширяя полосу частот.
+
+*4720#, отмена #4720# - уменьшает качество приема, но увеличивает время разряда батареи HFR - Half Rate - продлевает жизнь батареи где-то процентов на 30, за счет уменьшения примерно в половину полосы частот.
+
+*#06# - идентификационный номер.
+
+*#war0anty# (*#92702689#) - служебная информация: дата изготовления, серийный номер, дата покупки, был ли ремонт и когда, полный таймер аппарата.
+
+@ = кнопка посыла (SEND, YES)
+** = включить услугу и активировать (зарегистрировать)
+* = активировать услугу
+## = выключить услугу и деактивировать (отменить)
+# = деактивировать услугу
+*# = проверить состояние услуги на коммутаторе
+PW = password
+DestinationNumber = переадресуемый номер (номер на который устанавливается переадресация)
+
+Изменить PIN код
+Изменить PIN **04*oldPIN*newPIN*newPIN#@
+Изменить PIN2 **042*oldPIN2*newPIN2*newPIN2#@
+
+Разблокировать SIM - карту
+Разблокировать PIN **05*PUK*newPIN*newPIN#@
+Разблокировать PIN2 **052*PUK2*newPIN2*newPIN2#@
+
+Посмотреть IMEI (серийный номер телефона)
+*#06#
+
+Переадресация вызова (вы должны заказать услугу у оператора)
+Отменить все переадресации ##002#@
+Отменить все условные переадресации ##004#@
+Активировать все условные переадресации **004*DestinationNumber#@
+
+Безусловная переадресация (все звонки)
+Выключить и деактивировать безусловную переадресацию ##21#@
+Деактивировать безусловную переадресацию #21#@
+Включить и активировать безусловную переадресацию **21*DestinationNumber#@
+Включить безусловную переадресацию *21#@
+Проверить состояние безусловной переадресации *#21#@
+
+Переадресация «нет ответа»
+Выключить и деактивировать переадресацию «нет ответа» ##61#@
+Деактивировать переадресацию «нет ответа» #61#@
+Включить и активировать переадресацию «нет ответа» **61*DestinationNumber#@
+Включить переадресацию «нет ответа» *61#@
+Проверить состояние переадресации «нет ответа» *#61#@
+
+Переадресация «не доступен»
+Выключить и деактивировать переадресацию «не доступен» ##62#@
+Деактивировать переадресацию «не доступен» #62#@
+Включить и активировать переадресацию «не доступен» **62#DestinationNumber#@
+Включить переадресацию «недоступен» *62#@
+Проверить состояние переадресации «не доступен» *#62#@
+
+Переадресация «занято»
+Выключить и деактивировать переадресацию «занято» ##67#@
+Деактивировать переадресацию «занято» #67#@
+Включить и активировать переадресацию «занято» **67*DestinationNumber#@
+Включить переадресацию «занято» *67#@
+Проверить состояние переадресации «занято» *#67#@
+
+Установка времени звонка до срабатывания переадресации «нет ответа»
+Установить время ожидания **61*DestinationNumber**N#@ N= 5 – 30 (секунд)
+Удалить предыдущую установку ##61#@
+
+При установке переадресации по «нет ответа» вы можете задать время в секундах, которое система дает вам на поднятие трубки. Если за это время вы не подняли трубку, входящий звонок будет переадресован. Пример:
+**61*+709576617601234**30#@ устанавливает время ожидания 30 секунд.
+
+
+Запрет вызова (вы должны заказать услугу у оператора)
+Изменить пароль для всех запретов (начальный – 0000) **03*330*oldPW*newPW*newPW#@
+
+Запрет всех исходящих звонков
+Активировать запрет всех исходящих звонков **33*PW#@
+Деактивировать запрет всех исходящих звонков #33*PW#@
+Проверить состояние запрета всех исходящих звонков *#33#@
+
+Запрет всех звонков
+Активировать запрет всех звонков **330*PW#@
+Деактивировать запрет всех звонков #330*PW#@
+Проверить состояние запрета всех звонков *#330#@
+
+Запрет всех исходящих международных звонков
+Активировать запрет всех исходящих международных звонков **331*PW#@
+Деактивировать запрет всех исходящих международных звонков #331*PW#@
+Проверить состояние запрета всех исходящих междугородных звонков *#331#@
+
+Запрет всех исходящих звонков
+Активировать запрет всех исходящих звонков **333PW#@
+Деактивировать запрет всех исходящих звонков #333*PW#@
+
+Проверить состояние запрета всех исходящих звонков *#333#@
+
+Запрет всех входящих звонков
+Активировать запрет всех входящих звонков **35*PW#@ или **353*PW#@
+Деактивировать запрет всех входящих звонков #35*PW#@ или #353PW#@
+Проверить состояние запрета всех входящих звонков *#35#@ или *#353#@
+
+Запрет всех входящих звонком при роуминге
+Активировать запрет всех входящих звонков при роуминге **351*PW#@
+Деактивировать запрет всех входящих звонков при роуминге #351*PW#@
+Проверить состояние запрета всех входящих звонков при роуминге *#351#@
+
+Ожидание вызова (вы должны заказать услугу у оператора)
+Активировать ожидание вызова *43#@
+Деактивировать ожидание вызова #43#@
+Проверить состояние ожидания вызова *#43#@
+        </div>
+      </div>
+      <!-- Развлечение -->
+      <div id="entertainPage" style="display:none;">
+        <div id="entertainContent">
+          <h3>Развлечение — Нейросеть</h3>
+          <div style="font-size:12px;color:#333;margin-bottom:6px;">
+            Здесь вы можете пообщаться с нейросетью.<br>
+            Используется <b>google/gemini-2.0-pro-exp-02-05:free</b> через <a href="https://openrouter.ai/api/v1" target="_blank">OpenRouter API</a>.<br>
+            <b>API-ключ уже встроен!</b><br>
+            <b>Внимание:</b> все ваши сообщения могут быть обработаны внешним сервисом.
+          </div>
+          <form id="entertainForm" autocomplete="off">
+            <input type="text" id="entertainPrompt" placeholder="Ваш вопрос..." required>
+            <button type="submit">Спросить</button>
+          </form>
+          <div id="entertainLoading"></div>
+          <div id="entertainChat"></div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">
+            <b>Модель:</b> google/gemini-2.0-pro-exp-02-05:free<br>
+            <a href="https://openrouter.ai" target="_blank" style="color:#888;">openrouter.ai</a>
+          </div>
+        </div>
+      </div>
+      <!-- О сайте -->
+      <div id="aboutPage" style="display:none;">
+        <div id="aboutContent">
+          <h3>О сайте</h3>
+          <b>XMedia-WAP</b> — WAP-приложение для старых мобильных телефонов.<br>
+          <b>Версия:</b> 19.04.25 2.11<br>
+          <br>
+          <b>Возможности:</b>
+          <ul>
+            <li>Погода по городам</li>
+            <li>Новости через RSS-ленты</li>
+            <li>Поиск фото по ключевым словам</li>
+            <li>Справочник инженерных и сервисных кодов</li>
+            <li>Развлечение — нейросеть</li>
+          </ul>
+          <b>Особенности:</b>
+          <ul>
+            <li>Минимальный трафик — работает даже на старых телефонах</li>
+            <li>Совместимость с экранами 128x160 и 240x320</li>
+            <li>Безопасность: сайт только отображает данные, ничего не выполняет на устройстве</li>
+            <li>Быстрое переключение между сервисами</li>
+          </ul>
+          <b>Автор:</b> PowerLazer<br>
+          <b>Сайт:</b> <a href="https://powerlazer.github.io/xm-wap/" target="_blank">https://powerlazer.github.io/xm-wap/</a><br>
+          <br>
+          Приложение предназначено для владельцев классических мобильных телефонов, эмуляторов и любителей ретро-устройств. Все сервисы бесплатны и открыты.<br>
+          <span style="font-size:11px;color:#888;">&copy; 2025 PowerLazer</span>
+        </div>
+      </div>
+    </div>
+    <!-- Options Popup -->
+    <div class="options-popup" id="optionsPopup" style="display:none;">
+      <label>Разрешение:</label>
+      <button class="resolution-btn" id="res128Btn">128x160</button>
+      <button class="resolution-btn selected" id="res240Btn">240x320</button>
+      <div style="margin-top:6px"><button class="resolution-btn" id="closeOptionsBtn">Закрыть</button></div>
+    </div>
+    <!-- Главный футер -->
+    <div class="footer" id="mainFooter">
+      <button type="button" class="footer-btn" id="optionsBtn">Options</button>
+      <button type="button" class="footer-btn" id="backBtn">Back</button>
+    </div>
+  </div>
+  <script>
+    // ----- Стандартные функции переключения страниц и опций -----
+    function updateFooter(page) {
+      var mainFooter = document.getElementById('mainFooter');
+      var rssListFooter = document.querySelector('#rssListPage .footer');
+      if (page === 'rsslist') {
+        mainFooter.style.display = 'none';
+        rssListFooter.style.display = '';
+      } else {
+        mainFooter.style.display = '';
+        if (rssListFooter) rssListFooter.style.display = 'none';
+      }
+    }
+    function showPage(page) {
+      document.getElementById('mainMenu').style.display = (page === 'main') ? 'block' : 'none';
+      document.getElementById('weatherPage').style.display = (page === 'weather') ? 'block' : 'none';
+      document.getElementById('rssPage').style.display = (page === 'rss') ? 'block' : 'none';
+      document.getElementById('rssListPage').style.display = (page === 'rsslist') ? 'block' : 'none';
+      document.getElementById('photoPage').style.display = (page === 'photo') ? 'block' : 'none';
+      document.getElementById('codesPage').style.display = (page === 'codes') ? 'block' : 'none';
+      document.getElementById('entertainPage').style.display = (page === 'entertain') ? 'block' : 'none';
+      document.getElementById('aboutPage').style.display = (page === 'about') ? 'block' : 'none';
+      updateFooter(page);
+      var backBtn = document.getElementById('backBtn');
+      if(page === 'main'){
+        backBtn.disabled = true;
+        backBtn.style.opacity = ".4";
+      } else {
+        backBtn.disabled = false;
+        backBtn.style.opacity = "1";
+      }
+    }
+    document.getElementById('weatherMenuBtn').onclick = function(){ showPage('weather'); return false; };
+    document.getElementById('rssMenuBtn').onclick = function(){ showPage('rss'); return false; };
+    document.getElementById('photoMenuBtn').onclick = function(){ showPage('photo'); return false; };
+    document.getElementById('codesMenuBtn').onclick = function(){ showPage('codes'); return false; };
+    document.getElementById('entertainMenuBtn').onclick = function(){ showPage('entertain'); return false; };
+    document.getElementById('aboutMenuBtn').onclick = function(){ showPage('about'); return false; };
+    document.getElementById('backBtnRssList').onclick = function() {
+      showPage('rss');
+    };
+    document.getElementById('backBtn').onclick = function() {
+      if(document.getElementById('rssListPage').style.display === 'block') showPage('rss');
+      else if(document.getElementById('rssPage').style.display === 'block' 
+        || document.getElementById('weatherPage').style.display === 'block' 
+        || document.getElementById('photoPage').style.display === 'block' 
+        || document.getElementById('codesPage').style.display === 'block'
+        || document.getElementById('entertainPage').style.display === 'block'
+        || document.getElementById('aboutPage').style.display === 'block') showPage('main');
+    };
+    var optionsPopup = document.getElementById('optionsPopup');
+    var optionsBtn = document.getElementById('optionsBtn');
+    var optionsBtnRssList = document.getElementById('optionsBtnRssList');
+    function showOptions(show) {
+      optionsPopup.style.display = show ? 'block' : 'none';
+    }
+    optionsBtn.onclick = function() {
+      showOptions(true);
+    };
+    optionsBtnRssList.onclick = function() {
+      showOptions(true);
+    };
+    document.getElementById('closeOptionsBtn').onclick = function() {
+      showOptions(false);
+    };
+    function setResolution(width, height) {
+      document.documentElement.style.setProperty('--screen-width', width + 'px');
+      document.documentElement.style.setProperty('--screen-height', height + 'px');
+      document.querySelector('.app-window').style.width = width + 'px';
+      document.querySelector('.app-window').style.height = height + 'px';
+      document.getElementById('viewportMeta').setAttribute('content', 'width=' + width + ', height=' + height + ', initial-scale=1.0, user-scalable=no');
+      if(width === 128) {
+        document.getElementById('res128Btn').classList.add('selected');
+        document.getElementById('res240Btn').classList.remove('selected');
+      } else {
+        document.getElementById('res240Btn').classList.add('selected');
+        document.getElementById('res128Btn').classList.remove('selected');
+      }
+    }
+    document.getElementById('res128Btn').onclick = function() {
+      setResolution(128, 160);
+      showOptions(false);
+      return false;
+    };
+    document.getElementById('res240Btn').onclick = function() {
+      setResolution(240, 320);
+      showOptions(false);
+      return false;
+    };
+    document.addEventListener('mousedown', function(e) {
+      if(optionsPopup.style.display === 'block' && !optionsPopup.contains(e.target) && e.target !== optionsBtn && e.target !== optionsBtnRssList) {
+        showOptions(false);
+      }
+    });
+
+    // Погода
+    const apiKey = "495285e7f470af7c1638cae253bc4d27";
+    const form = document.getElementById('weatherForm');
+    const input = document.getElementById('cityInput');
+    const weatherBox = document.getElementById('weatherBox');
+    const loading = document.getElementById('loading');
+    function clearWeather() {
+      weatherBox.innerHTML = '';
+      loading.innerHTML = '';
+    }
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      clearWeather();
+      const city = input.value.trim();
+      if (city) {
+        weatherBox.innerHTML = '';
+        loading.innerHTML = 'Загрузка...';
+        var xhr = new XMLHttpRequest();
+        var url = "https://api.openweathermap.org/data/2.5/weather?q=" + encodeURIComponent(city) + "&appid=" + apiKey + "&units=metric&lang=ru";
+        xhr.open("GET", url, true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState == 4) {
+            loading.innerHTML = '';
+            if (xhr.status == 200) {
+              try {
+                var data = JSON.parse(xhr.responseText);
+                showWeather(data);
+              } catch(e) {
+                weatherBox.innerHTML = "Ошибка обработки данных";
+              }
+            } else {
+              weatherBox.innerHTML = "Город не найден";
+            }
+          }
+        };
+        xhr.send(null);
+      }
+    });
+    function showWeather(data) {
+      weatherBox.innerHTML = 
+        '<strong>' + data.name + ', ' + data.sys.country + '</strong><br>' +
+        '<img class="icon" src="https://openweathermap.org/img/wn/' + data.weather[0].icon + '.png" alt="Погода"> ' +
+        data.weather[0].description + '<br>' +
+        '<b>' + Math.round(data.main.temp) + '°C</b><br>' +
+        'Ощущ: ' + Math.round(data.main.feels_like) + '°C<br>' +
+        'Влаж: ' + data.main.humidity + '%';
+    }
+
+    // RSS
+    var rssLinks = document.querySelectorAll('.rss-link');
+    var rssList = document.getElementById('rssList');
+    var rssLoading = document.getElementById('rssLoading');
+    var lastRssLink = null;
+    rssLinks.forEach(function(link){
+      link.onclick = function(){
+        if (lastRssLink) lastRssLink.classList.remove('selected');
+        link.classList.add('selected');
+        lastRssLink = link;
+        showPage('rsslist');
+        loadRSS(link.getAttribute('data-url'));
+        return false;
+      };
+    });
+    function loadRSS(rssUrl) {
+      rssList.innerHTML = '';
+      rssLoading.innerHTML = 'Загрузка...';
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl), true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+          rssLoading.innerHTML = '';
+          if (xhr.status == 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              displayRSS(data.contents);
+            } catch(e) {
+              rssList.innerHTML = 'Ошибка чтения RSS';
+            }
+          } else {
+            rssList.innerHTML = 'Ошибка загрузки RSS';
+          }
+        }
+      };
+      xhr.send(null);
+    }
+    function displayRSS(xmlText) {
+      var parser = new window.DOMParser();
+      var xml = parser.parseFromString(xmlText, "text/xml");
+      var items = xml.getElementsByTagName('item');
+      var html = '';
+      for (var i = 0; i < items.length && i < 10; i++) {
+        var title = items[i].getElementsByTagName('title')[0].textContent;
+        var link = items[i].getElementsByTagName('link')[0].textContent;
+        html += '<a href="' + link + '" target="_blank">' + title + '</a><br>';
+      }
+      rssList.innerHTML = html || 'Нет новостей';
+    }
+
+    // Фото-услуга
+    const photoForm = document.getElementById('photoForm');
+    const photoInput = document.getElementById('photoInput');
+    const photoResult = document.getElementById('photoResult');
+    const photoLoading = document.getElementById('photoLoading');
+    const PIXABAY_KEY = "49803404-dcce4170e425cb5d5f2b6151c";
+    photoForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const query = photoInput.value.trim();
+      photoResult.innerHTML = '';
+      photoLoading.innerHTML = '';
+      if (!query) return;
+      photoLoading.innerHTML = 'Загрузка...';
+      var pixabayUrl = 'https://pixabay.com/api/?key=' + PIXABAY_KEY + '&q=' + encodeURIComponent(query) + '&image_type=photo&safesearch=true&lang=ru&per_page=10';
+      var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(pixabayUrl);
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState == 4) {
+          photoLoading.innerHTML = '';
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              var parsed = JSON.parse(data.contents);
+              if (parsed.hits && parsed.hits.length > 0) {
+                var html = '';
+                for (var i = 0; i < parsed.hits.length; i++) {
+                  var hit = parsed.hits[i];
+                  var title = hit.tags ? hit.tags.split(',')[0] : 'Фото';
+                  html += '<div class="photo-thumb">' +
+                    '<a href="' + hit.largeImageURL + '" target="_blank">' +
+                    '<img src="' + hit.previewURL + '" alt="' + title + '">' +
+                    '<span>Посмотреть</span></a></div>';
+                }
+                photoResult.innerHTML = html;
+              } else {
+                photoResult.innerHTML = 'Ничего не найдено';
+              }
+            } catch (e) {
+              photoResult.innerHTML = 'Ошибка обработки ответа';
+            }
+          } else {
+            photoResult.innerHTML = 'Ошибка загрузки фото';
+          }
+        }
+      };
+      xhr.send(null);
+    });
+
+    // Развлечение (нейросеть OpenRouter)
+    const entertainForm = document.getElementById('entertainForm');
+    const entertainPrompt = document.getElementById('entertainPrompt');
+    const entertainLoading = document.getElementById('entertainLoading');
+    const entertainChat = document.getElementById('entertainChat');
+    const ENTERTAIN_API_KEY = "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";
+    let entertainHistory = [];
+    entertainForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const prompt = entertainPrompt.value.trim();
+      if (!prompt) return;
+      entertainPrompt.value = '';
+      entertainLoading.innerHTML = 'Ожидание ответа...';
+      entertainHistory.push({role: "user", content: prompt});
+      renderEntertainChat();
+      // Считаем количество ответов бота и если их больше 3, то удаляем первую пару user+assistant
+      let botAnswers = entertainHistory.filter(m => m.role === "assistant").length;
+      if (botAnswers >= 3) {
+        // Найти первую пару user+assistant и удалить их
+        let userIdx = entertainHistory.findIndex(m => m.role === "user");
+        let assistantIdx = entertainHistory.findIndex((m, i) => m.role === "assistant" && i > userIdx);
+        if (userIdx >= 0 && assistantIdx > userIdx) {
+          entertainHistory.splice(userIdx, 2);
+        }
+      }
+      // Собираем последние сообщения
+      const messages = entertainHistory.slice(-7);
+      fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + ENTERTAIN_API_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.0-pro-exp-02-05",
+          messages: messages
+        })
+      })
+      .then(resp => resp.json())
+      .then(data => {
+        entertainLoading.innerHTML = '';
+        if (data.choices && data.choices.length > 0) {
+          const reply = data.choices[0].message.content;
+          entertainHistory.push({role: "assistant", content: reply});
+          renderEntertainChat();
+        } else {
+          entertainHistory.push({role: "assistant", content: "[Ошибка или пустой ответ нейросети]"});
+          renderEntertainChat();
+        }
+      })
+      .catch(err => {
+        entertainLoading.innerHTML = '';
+        entertainHistory.push({role: "assistant", content: "[Ошибка запроса: " + (err.message || err) + "]"});
+        renderEntertainChat();
+      });
+    });
+    function renderEntertainChat() {
+      entertainChat.innerHTML = entertainHistory.map(msg =>
+        msg.role === "user"
+        ? `<div class="e-user">Вы: ${escapeHtml(msg.content)}</div>`
+        : `<div class="e-bot">Бот: ${escapeHtml(msg.content)}</div>`
+      ).join('');
+    }
+    function escapeHtml(s) {
+      return s.replace(/[<>&"]/g, c => (
+        {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]
+      ));
+    }
+    setResolution(240, 320);
+    showPage('main');
+  </script>
+</body>
+</html>
