@@ -111,6 +111,11 @@
       max-width: 100%;
       transition: all 0.2s ease;
       box-shadow: 0 1px 3px var(--shadow-color);
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      cursor: pointer;
     }
     .main-link:hover, .rss-link:hover {
       background: linear-gradient(135deg, var(--hover-bg) 0%, #e0f2fe 100%);
@@ -123,7 +128,7 @@
       color: var(--primary-dark);
       border-color: var(--primary-dark);
       transform: translateY(0);
-      box-shadow: 0 1px 2px var(--shadow-color);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
     }
     .form-label {
       display: block;
@@ -233,6 +238,10 @@
       border-radius: 4px;
       transition: all 0.2s ease;
       box-shadow: 0 1px 2px var(--shadow-color);
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
     }
     .footer-btn:hover {
       background: linear-gradient(135deg, var(--hover-bg) 0%, #e0f2fe 100%);
@@ -240,9 +249,10 @@
       transform: translateY(-1px);
       box-shadow: 0 2px 4px var(--shadow-color);
     }
-    .footer-btn:active {
+    .footer-btn:active, .footer-btn.active {
       background: linear-gradient(135deg, var(--active-bg) 0%, #93c5fd 100%);
       color: var(--primary-dark);
+      border-color: var(--primary-dark);
       transform: translateY(0);
       box-shadow: 0 1px 2px var(--shadow-color);
     }
@@ -413,6 +423,58 @@
     /* Opera Mini 4.4 fix: убираем border у .app-window, только у контентных блоков */
     @media all and (min-width:0px) {
       .app-window { border: none !important; }
+    }
+    /* Options popup styling */
+    .options-popup {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--card-bg) 0%, #f8fafc 100%);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      z-index: 100;
+      min-width: 180px;
+      text-align: center;
+    }
+    .options-popup label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .resolution-btn {
+      display: block;
+      width: 100%;
+      margin: 4px 0;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      background: linear-gradient(135deg, var(--card-bg) 0%, #f1f5f9 100%);
+      color: var(--primary-color);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px var(--shadow-color);
+    }
+    .resolution-btn:hover {
+      background: linear-gradient(135deg, var(--hover-bg) 0%, #e0f2fe 100%);
+      border-color: var(--accent-color);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+    .resolution-btn:active, .resolution-btn.selected {
+      background: linear-gradient(135deg, var(--active-bg) 0%, #93c5fd 100%);
+      color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(0);
+      box-shadow: 0 1px 2px var(--shadow-color);
     }
   </style>
 </head>
@@ -656,7 +718,7 @@ DestinationNumber = переадресуемый номер (номер на к�
           <b>Особенности:</b>
           <ul>
             <li>Минимальный трафик — работает даже на старых телефонах</li>
-            <li>Совместимость с экранами 128x160 и 240x320</li>
+            <li>Совместимость с экранами 128x160, 240x320, 320x480 и 360x640</li>
             <li>Безопасность: сайт только отображает данные, ничего не выполняет на устройстве</li>
             <li>Быстрое переключение между сервисами</li>
           </ul>
@@ -673,6 +735,8 @@ DestinationNumber = переадресуемый номер (номер на к�
       <label>Разрешение:</label>
       <button class="resolution-btn" id="res128Btn">128x160</button>
       <button class="resolution-btn selected" id="res240Btn">240x320</button>
+      <button class="resolution-btn" id="res320Btn">320x480</button>
+      <button class="resolution-btn" id="res360Btn">360x640</button>
       <div style="margin-top:6px"><button class="resolution-btn" id="closeOptionsBtn">Закрыть</button></div>
     </div>
     <!-- Главный футер -->
@@ -752,12 +816,22 @@ DestinationNumber = переадресуемый номер (номер на к�
       document.querySelector('.app-window').style.width = width + 'px';
       document.querySelector('.app-window').style.height = height + 'px';
       document.getElementById('viewportMeta').setAttribute('content', 'width=' + width + ', height=' + height + ', initial-scale=1.0, user-scalable=no');
+      
+      // Remove selected class from all resolution buttons
+      document.getElementById('res128Btn').classList.remove('selected');
+      document.getElementById('res240Btn').classList.remove('selected');
+      document.getElementById('res320Btn').classList.remove('selected');
+      document.getElementById('res360Btn').classList.remove('selected');
+      
+      // Add selected class to current resolution button
       if(width === 128) {
         document.getElementById('res128Btn').classList.add('selected');
-        document.getElementById('res240Btn').classList.remove('selected');
-      } else {
+      } else if(width === 240) {
         document.getElementById('res240Btn').classList.add('selected');
-        document.getElementById('res128Btn').classList.remove('selected');
+      } else if(width === 320) {
+        document.getElementById('res320Btn').classList.add('selected');
+      } else if(width === 360) {
+        document.getElementById('res360Btn').classList.add('selected');
       }
     }
     document.getElementById('res128Btn').onclick = function() {
@@ -767,6 +841,16 @@ DestinationNumber = переадресуемый номер (номер на к�
     };
     document.getElementById('res240Btn').onclick = function() {
       setResolution(240, 320);
+      showOptions(false);
+      return false;
+    };
+    document.getElementById('res320Btn').onclick = function() {
+      setResolution(320, 480);
+      showOptions(false);
+      return false;
+    };
+    document.getElementById('res360Btn').onclick = function() {
+      setResolution(360, 640);
       showOptions(false);
       return false;
     };
@@ -991,6 +1075,8 @@ DestinationNumber = переадресуемый номер (номер на к�
         {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]
       ));
     }
+    
+    // Initialize with default resolution and set selected button
     setResolution(240, 320);
     showPage('main');
   </script>
